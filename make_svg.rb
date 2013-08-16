@@ -16,6 +16,10 @@ xml.svg(svg_attributes) do
     puts "
       .draggable {
         cursor: move;
+      }
+      .word {
+        font-family: monospace;
+        font-size: 20pt;
       }"
   end
   xml.script(type: 'text/ecmascript') do
@@ -23,6 +27,7 @@ xml.svg(svg_attributes) do
   end
 
   xml.rect(x:0.5, y:0.5, width:399, height:199, fill:'none', stroke:'black')
+  xml.text('User', x:10, y:30, class:'word')
 
 #    
 #    <rect class="draggable"
