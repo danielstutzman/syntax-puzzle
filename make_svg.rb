@@ -27,7 +27,6 @@ xml.svg(svg_attributes) do
   end
 
   xml.rect(x:0.5, y:0.5, width:399, height:199, fill:'none', stroke:'black')
-  xml.text('User', x:10, y:30, class:'word')
 
 #    
 #    <rect class="draggable"
@@ -44,8 +43,23 @@ xml.svg(svg_attributes) do
 #          transform="matrix(1 0 0 1 0 0)"
 #          onmousedown="selectElement(evt)"/>
 #
-  xml.book do
-    xml.title 'here1'
-    xml.author 'here2'
+  # SW, NW, NE, SE
+  skew_west = 15
+  skew_east = 15
+  height = 50
+  width = 250
+  font_height = 20
+  west_padding = 20
+  xy_pairs = %W[
+    0,#{height}
+    #{skew_west},0
+    #{width + skew_east},0
+    #{width},#{height}
+  ].join(' ')
+  style = "fill:white; stroke:black; stroke-width:1"
+
+  xml.g transform: "translate(10 20)", class: "draggable", onmousedown: "selectElement(event)" do
+    xml.polygon points:xy_pairs, style: style
+    xml.text('User', x:west_padding, y:(height/2 + font_height/2), class:'word')
   end
 end

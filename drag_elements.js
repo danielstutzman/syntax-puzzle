@@ -35,6 +35,5 @@ function deselectElement(evt) {
     selectedElement.removeAttributeNS(null, "onmouseout");
     selectedElement.removeAttributeNS(null, "onmouseup");
     selectedElement = 0;
-    }
   }
 }
