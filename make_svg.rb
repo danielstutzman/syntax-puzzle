@@ -50,16 +50,26 @@ xml.svg(svg_attributes) do
   width = 250
   font_height = 20
   west_padding = 20
-  xy_pairs = %W[
+  block_points = %W[
     0,#{height}
     #{skew_west},0
     #{width + skew_east},0
     #{width},#{height}
   ].join(' ')
-  style = "fill:white; stroke:black; stroke-width:1"
+  block_style = "fill:white; stroke:black; stroke-width:1"
+
+  stripe_width = 10
+  stripe_points = %W[
+    #{-stripe_width / 2},#{height}
+    #{skew_west - stripe_width / 2},0
+    #{skew_west + stripe_width / 2},0
+    #{stripe_width / 2},#{height}
+  ].join(' ')
+  stripe_style = "fill:red; stroke:black; stroke-width:1"
 
   xml.g transform: "translate(10 20)", class: "draggable", onmousedown: "selectElement(event)" do
-    xml.polygon points:xy_pairs, style: style
+    xml.polygon points:block_points, style: block_style
+    xml.polygon points:stripe_points, style: stripe_style
     xml.text('User', x:west_padding, y:(height/2 + font_height/2), class:'word')
   end
 end
