@@ -77,7 +77,7 @@ xml.svg(svg_attributes) do
 
   xml.g transform: "translate(10 20)",
         class: "draggable word",
-        onmousedown: "selectElement(event)" do
+        onmousedown: "selectElement(event, this)" do
     block(xml, 250.0, 50.0, 'User', true, true)
   end
 end
