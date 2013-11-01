@@ -2,6 +2,7 @@ require 'builder'
 
 TILE_HEIGHT = 50.0
 FONT_HEIGHT = 20.0
+CHAR_WIDTH  = 16.0
 
 xml = Builder::XmlMarkup.new(target: STDOUT, indent: 2)
 
@@ -26,7 +27,7 @@ def tile_side_stripe(xml, fill_color, skew, stroke_width)
   xml.polygon points:points, style: stripe_style
 end
 
-def tile(xml, x, y, width, text, west_color, east_color)
+def tile(xml, x, y, text, west_color, east_color)
   do_skew_west = (west_color != nil)
   do_skew_east = (east_color != nil)
   skew_west = do_skew_west ? 15.0 : 0.0
@@ -35,6 +36,7 @@ def tile(xml, x, y, width, text, west_color, east_color)
   stroke_width = 1.0
   fill_color = 'white'
   stroke_color = 'black'
+  width = west_padding + (CHAR_WIDTH * text.size) + west_padding
 
   # SW, NW, NE, SE
   points = %W[
@@ -88,6 +90,6 @@ xml.svg(svg_attributes) do
 
   xml.rect x:0.5, y:0.5, width:399, height:199,
            fill:'none', stroke:'black'
-  tile xml, 10, 20, 250.0, 'User', 'red', 'blue'
-  tile xml, 10, 80, 250.0, 'User', nil, 'green'
+  tile xml, 10, 20, 'User', nil, '#ccf'
+  tile xml, 10, 80, '.find(_)', '#ccf', 'green'
 end
