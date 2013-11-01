@@ -23,7 +23,9 @@ def stripe(xml, fill_color, skew, height, stroke_width)
   xml.polygon points:points, style: stripe_style
 end
 
-def block(xml, x, y, width, height, text, do_skew_west, do_skew_east)
+def block(xml, x, y, width, height, text, west_color, east_color)
+  do_skew_west = (west_color != nil)
+  do_skew_east = (east_color != nil)
   skew_west = do_skew_west ? 15.0 : 0.0
   skew_east = do_skew_east ? 15.0 : 0.0
   font_height = 20.0
@@ -52,10 +54,14 @@ def block(xml, x, y, width, height, text, do_skew_west, do_skew_east)
 
     xml.polygon points:points, style: style
 
-    stripe xml, 'red', skew_west, height, stroke_width
+    if do_skew_west
+      stripe xml, west_color, skew_west, height, stroke_width
+    end
 
-    xml.g transform: "translate(#{width} 0)" do
-      stripe xml, 'blue', skew_east, height, stroke_width
+    if do_skew_east
+      xml.g transform: "translate(#{width} 0)" do
+        stripe xml, east_color, skew_east, height, stroke_width
+      end
     end
 
     xml.text text, x:west_padding, y:(height/2 + font_height/2)
@@ -80,5 +86,6 @@ xml.svg(svg_attributes) do
 
   xml.rect x:0.5, y:0.5, width:399, height:199,
            fill:'none', stroke:'black'
-  block xml, 10, 20, 250.0, 50.0, 'User', true, true
+  block xml, 10, 20, 250.0, 50.0, 'User', 'red', 'blue'
+  block xml, 10, 80, 250.0, 50.0, 'User', nil, 'green'
 end
