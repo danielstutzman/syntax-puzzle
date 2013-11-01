@@ -1,5 +1,7 @@
 require 'builder'
 
+TILE_HEIGHT = 50.0
+
 xml = Builder::XmlMarkup.new(target: STDOUT, indent: 2)
 
 svg_attributes = {
@@ -10,20 +12,20 @@ svg_attributes = {
   height: '200',
 }
 
-def stripe(xml, fill_color, skew, height, stroke_width)
+def stripe(xml, fill_color, skew, stroke_width)
   width = 10
   # SW, NW, NE, SE
   points = %W[
-    #{-width / 2},#{height + stroke_width / 2}
+    #{-width / 2},#{TILE_HEIGHT + stroke_width / 2}
     #{skew - width / 2},#{-stroke_width / 2}
     #{skew + width / 2},#{-stroke_width / 2}
-    #{width / 2},#{height + stroke_width / 2}
+    #{width / 2},#{TILE_HEIGHT + stroke_width / 2}
   ].join(' ')
   stripe_style = "fill:#{fill_color}"
   xml.polygon points:points, style: stripe_style
 end
 
-def block(xml, x, y, width, height, text, west_color, east_color)
+def block(xml, x, y, width, text, west_color, east_color)
   do_skew_west = (west_color != nil)
   do_skew_east = (east_color != nil)
   skew_west = do_skew_west ? 15.0 : 0.0
@@ -36,10 +38,10 @@ def block(xml, x, y, width, height, text, west_color, east_color)
 
   # SW, NW, NE, SE
   points = %W[
-    0,#{height}
+    0,#{TILE_HEIGHT}
     #{skew_west},0
     #{width + skew_east},0
-    #{width},#{height}
+    #{width},#{TILE_HEIGHT}
   ].join(' ')
  
   style = %W[
@@ -55,16 +57,16 @@ def block(xml, x, y, width, height, text, west_color, east_color)
     xml.polygon points:points, style: style
 
     if do_skew_west
-      stripe xml, west_color, skew_west, height, stroke_width
+      stripe xml, west_color, skew_west, stroke_width
     end
 
     if do_skew_east
       xml.g transform: "translate(#{width} 0)" do
-        stripe xml, east_color, skew_east, height, stroke_width
+        stripe xml, east_color, skew_east, stroke_width
       end
     end
 
-    xml.text text, x:west_padding, y:(height/2 + font_height/2)
+    xml.text text, x:west_padding, y:(TILE_HEIGHT/2 + font_height/2)
   end
 end
 
@@ -86,6 +88,6 @@ xml.svg(svg_attributes) do
 
   xml.rect x:0.5, y:0.5, width:399, height:199,
            fill:'none', stroke:'black'
-  block xml, 10, 20, 250.0, 50.0, 'User', 'red', 'blue'
-  block xml, 10, 80, 250.0, 50.0, 'User', nil, 'green'
+  block xml, 10, 20, 250.0, 'User', 'red', 'blue'
+  block xml, 10, 80, 250.0, 'User', nil, 'green'
 end
