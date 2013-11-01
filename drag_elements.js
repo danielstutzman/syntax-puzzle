@@ -7,6 +7,10 @@ function selectElement(evt) {
   selectedElement = evt.target;
   currentX = evt.clientX;
   currentY = evt.clientY;
+  if (selectedElement.getAttributeNS(null, "transform") === "") {
+    selectedElement.setAttributeNS(null, "transform",
+      "matrix(1 0 0 1 0 0)");
+  }
   currentMatrix = selectedElement.getAttributeNS(null, "transform").slice(7,-1).split(' ');
 
   for(var i=0; i<currentMatrix.length; i++) {
