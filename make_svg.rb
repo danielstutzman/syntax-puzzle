@@ -1,6 +1,7 @@
 require 'builder'
 
 TILE_HEIGHT = 50.0
+FONT_HEIGHT = 20.0
 
 xml = Builder::XmlMarkup.new(target: STDOUT, indent: 2)
 
@@ -30,7 +31,6 @@ def block(xml, x, y, width, text, west_color, east_color)
   do_skew_east = (east_color != nil)
   skew_west = do_skew_west ? 15.0 : 0.0
   skew_east = do_skew_east ? 15.0 : 0.0
-  font_height = 20.0
   west_padding = 20.0
   stroke_width = 1.0
   fill_color = 'white'
@@ -66,7 +66,7 @@ def block(xml, x, y, width, text, west_color, east_color)
       end
     end
 
-    xml.text text, x:west_padding, y:(TILE_HEIGHT/2 + font_height/2)
+    xml.text text, x:west_padding, y:(TILE_HEIGHT/2 + FONT_HEIGHT/2)
   end
 end
 
