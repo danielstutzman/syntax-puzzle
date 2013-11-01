@@ -23,7 +23,7 @@ def stripe(xml, fill_color, skew, height, stroke_width)
   xml.polygon points:points, style: stripe_style
 end
 
-def block(xml, width, height, text, do_skew_west, do_skew_east)
+def block(xml, x, y, width, height, text, do_skew_west, do_skew_east)
   skew_west = do_skew_west ? 15.0 : 0.0
   skew_east = do_skew_east ? 15.0 : 0.0
   font_height = 20.0
@@ -46,15 +46,20 @@ def block(xml, width, height, text, do_skew_west, do_skew_east)
     stroke-width:#{stroke_width}
   ].join(' ')
 
-  xml.polygon points:points, style: style
+  xml.g transform: "translate(#{x} #{y})",
+        class: "draggable word",
+        onmousedown: "selectElement(event, this)" do
 
-  stripe xml, 'red', skew_west, height, stroke_width
+    xml.polygon points:points, style: style
 
-  xml.g transform: "translate(#{width} 0)" do
-    stripe xml, 'blue', skew_east, height, stroke_width
+    stripe xml, 'red', skew_west, height, stroke_width
+
+    xml.g transform: "translate(#{width} 0)" do
+      stripe xml, 'blue', skew_east, height, stroke_width
+    end
+
+    xml.text text, x:west_padding, y:(height/2 + font_height/2)
   end
-
-  xml.text text, x:west_padding, y:(height/2 + font_height/2)
 end
 
 xml.instruct!
@@ -73,11 +78,7 @@ xml.svg(svg_attributes) do
     xml.cdata! File.read('drag_elements.js')
   end
 
-  xml.rect x:0.5, y:0.5, width:399, height:199, fill:'none', stroke:'black'
-
-  xml.g transform: "translate(10 20)",
-        class: "draggable word",
-        onmousedown: "selectElement(event, this)" do
-    block(xml, 250.0, 50.0, 'User', true, true)
-  end
+  xml.rect x:0.5, y:0.5, width:399, height:199,
+           fill:'none', stroke:'black'
+  block xml, 10, 20, 250.0, 50.0, 'User', true, true
 end
