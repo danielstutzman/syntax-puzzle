@@ -4,6 +4,11 @@ TILE_HEIGHT = 50.0
 FONT_HEIGHT = 20.0
 CHAR_WIDTH  = 16.0
 NBSP_UTF8   = "\xc2\xa0" # non-breaking space instead of space
+TYPE_TO_COLOR = {
+  ar_query:  '#ccf',
+  ar_object: 'blue',
+  int:       'red',
+}
 
 xml = Builder::XmlMarkup.new(target: STDOUT, indent: 2)
 
@@ -51,9 +56,9 @@ def tile_hole(xml, east_color, style)
   end
 end
 
-def tile(xml, x, y, text, west_color, east_color)
-  do_skew_west = (west_color != nil)
-  do_skew_east = (east_color != nil)
+def tile(xml, x, y, text, west_type, east_type, east_hole_type)
+  do_skew_west = (west_type != nil)
+  do_skew_east = (east_type != nil)
   skew_west = do_skew_west ? 15.0 : 0.0
   skew_east = do_skew_east ? 15.0 : 0.0
   west_padding = 20.0
@@ -83,11 +88,13 @@ def tile(xml, x, y, text, west_color, east_color)
     xml.polygon points:points, style:style
 
     if do_skew_west
+      west_color = TYPE_TO_COLOR[west_type]
       tile_side_stripe xml, west_color, skew_west, stroke_width
     end
 
     if do_skew_east
       xml.g transform:"translate(#{width} 0)" do
+        east_color = TYPE_TO_COLOR[east_type]
         tile_side_stripe xml, east_color, skew_east, stroke_width
       end
     end
@@ -98,7 +105,8 @@ def tile(xml, x, y, text, west_color, east_color)
     if text.include?('___')
       hole_x = west_padding + CHAR_WIDTH * text.index('___')
       xml.g transform:"translate(#{hole_x} 0)" do
-        tile_hole xml, 'red', style
+        east_hole_color = TYPE_TO_COLOR[east_hole_type]
+        tile_hole xml, east_hole_color, style
       end
     end
   end
@@ -122,6 +130,6 @@ xml.svg(svg_attributes) do
 
   xml.rect x:0.5, y:0.5, width:399, height:199,
            fill:'none', stroke:'black'
-  tile xml, 10, 20, 'User', nil, '#ccf'
-  tile xml, 10, 80, '.find(___)', '#ccf', 'green'
+  tile xml, 10, 20, 'User', nil,  :ar_query, nil
+  tile xml, 10, 80, '.find(___)', :ar_query, :ar_object, :int
 end
