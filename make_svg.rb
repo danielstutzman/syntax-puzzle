@@ -19,8 +19,6 @@ svg_attributes = {
   "xmlns:svg" => 'http://www.w3.org/2000/svg',
   xmlns: 'http://www.w3.org/2000/svg',
   version: '1.1',
-  width: '400',
-  height: '200',
 }
 
 def tile_side_stripe(xml, fill_color, skew, stroke_width)
@@ -134,8 +132,7 @@ xml.svg(svg_attributes) do
     xml.cdata! File.read('drag_elements.js')
   end
 
-  xml.rect x:0.5, y:0.5, width:399, height:199,
-           fill:BACKGROUND_COLOR, stroke:'black'
+  xml.rect x:0, y:0, width:'100%', height:'100%', fill:BACKGROUND_COLOR
   tile xml, 10, 20, 'User', nil,  :ar_query, nil
   tile xml, 10, 80, '.find(___)', :ar_query, :ar_object, :int
 end
