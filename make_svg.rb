@@ -9,6 +9,9 @@ TYPE_TO_COLOR = {
   ar_object: 'blue',
   int:       'red',
 }
+BACKGROUND_COLOR = '#eee'
+STROKE_WIDTH = 1.0
+STROKE_COLOR = 'black'
 
 xml = Builder::XmlMarkup.new(target: STDOUT, indent: 2)
 
@@ -33,13 +36,18 @@ def tile_side_stripe(xml, fill_color, skew, stroke_width)
   xml.polygon points:points, style: stripe_style
 end
 
-def tile_hole(xml, east_color, style)
+def tile_hole(xml, east_color)
   hole_w = CHAR_WIDTH * 3
   padding_north_south = 8
   height_multiplier =
     ((TILE_HEIGHT - padding_north_south * 2) / TILE_HEIGHT)
   skew_east = 15.0
-  stroke_width = 1.0
+
+  style = %W[
+    fill:#{BACKGROUND_COLOR};
+    stroke:#{STROKE_COLOR};
+    stroke-width:#{STROKE_WIDTH}
+  ].join(' ')
 
   # NW, SW, SE, NE
   points = %W[
@@ -52,7 +60,7 @@ def tile_hole(xml, east_color, style)
   xml.polygon points:points, style:style
 
   xml.g transform:"translate(#{hole_w - 8} #{padding_north_south}) scale(#{height_multiplier} #{height_multiplier})" do
-    tile_side_stripe xml, east_color, 15.0, stroke_width
+    tile_side_stripe xml, east_color, 15.0, STROKE_WIDTH
   end
 end
 
@@ -62,9 +70,7 @@ def tile(xml, x, y, text, west_type, east_type, east_hole_type)
   skew_west = do_skew_west ? 15.0 : 0.0
   skew_east = do_skew_east ? 15.0 : 0.0
   west_padding = 20.0
-  stroke_width = 1.0
   fill_color = 'white'
-  stroke_color = 'black'
   width = west_padding + (CHAR_WIDTH * text.size) + west_padding
 
   # SW, NW, NE, SE
@@ -77,8 +83,8 @@ def tile(xml, x, y, text, west_type, east_type, east_hole_type)
  
   style = %W[
     fill:#{fill_color};
-    stroke:#{stroke_color};
-    stroke-width:#{stroke_width}
+    stroke:#{STROKE_COLOR};
+    stroke-width:#{STROKE_WIDTH}
   ].join(' ')
 
   xml.g transform:"translate(#{x} #{y})",
@@ -89,13 +95,13 @@ def tile(xml, x, y, text, west_type, east_type, east_hole_type)
 
     if do_skew_west
       west_color = TYPE_TO_COLOR[west_type]
-      tile_side_stripe xml, west_color, skew_west, stroke_width
+      tile_side_stripe xml, west_color, skew_west, STROKE_WIDTH
     end
 
     if do_skew_east
       xml.g transform:"translate(#{width} 0)" do
         east_color = TYPE_TO_COLOR[east_type]
-        tile_side_stripe xml, east_color, skew_east, stroke_width
+        tile_side_stripe xml, east_color, skew_east, STROKE_WIDTH
       end
     end
 
@@ -106,7 +112,7 @@ def tile(xml, x, y, text, west_type, east_type, east_hole_type)
       hole_x = west_padding + CHAR_WIDTH * text.index('___')
       xml.g transform:"translate(#{hole_x} 0)" do
         east_hole_color = TYPE_TO_COLOR[east_hole_type]
-        tile_hole xml, east_hole_color, style
+        tile_hole xml, east_hole_color
       end
     end
   end
@@ -129,7 +135,7 @@ xml.svg(svg_attributes) do
   end
 
   xml.rect x:0.5, y:0.5, width:399, height:199,
-           fill:'none', stroke:'black'
+           fill:BACKGROUND_COLOR, stroke:'black'
   tile xml, 10, 20, 'User', nil,  :ar_query, nil
   tile xml, 10, 80, '.find(___)', :ar_query, :ar_object, :int
 end
