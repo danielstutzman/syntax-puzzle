@@ -52,23 +52,40 @@ def tile(xml, x, y, text, west_color, east_color)
     stroke-width:#{stroke_width}
   ].join(' ')
 
-  xml.g transform: "translate(#{x} #{y})",
-        class: "draggable word",
-        onmousedown: "selectElement(event, this)" do
+  xml.g transform:"translate(#{x} #{y})",
+        class:"draggable word",
+        onmousedown:"selectElement(event, this)" do
 
-    xml.polygon points:points, style: style
+    xml.polygon points:points, style:style
 
     if do_skew_west
       tile_side_stripe xml, west_color, skew_west, stroke_width
     end
 
     if do_skew_east
-      xml.g transform: "translate(#{width} 0)" do
+      xml.g transform:"translate(#{width} 0)" do
         tile_side_stripe xml, east_color, skew_east, stroke_width
       end
     end
 
     xml.text text, x:west_padding, y:(TILE_HEIGHT/2 + FONT_HEIGHT/2)
+
+    if text.include?('___')
+      hole_x = west_padding + CHAR_WIDTH * text.index('___')
+      hole_w = CHAR_WIDTH * 3
+      padding_north_south = 8
+
+      # NW, SW, SE, NE
+      points = %W[
+        0,#{padding_north_south}
+        0,#{TILE_HEIGHT - padding_north_south}
+        #{hole_w},#{TILE_HEIGHT - padding_north_south}
+        #{hole_w},#{padding_north_south}
+      ].join(' ')
+      xml.g transform:"translate(#{hole_x} 0)" do
+        xml.polygon points:points, style:style
+      end
+    end
   end
 end
 
@@ -91,5 +108,5 @@ xml.svg(svg_attributes) do
   xml.rect x:0.5, y:0.5, width:399, height:199,
            fill:'none', stroke:'black'
   tile xml, 10, 20, 'User', nil, '#ccf'
-  tile xml, 10, 80, '.find(_)', '#ccf', 'green'
+  tile xml, 10, 80, '.find(___)', '#ccf', 'green'
 end
