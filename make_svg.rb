@@ -3,6 +3,7 @@ require 'builder'
 TILE_HEIGHT = 50.0
 FONT_HEIGHT = 20.0
 CHAR_WIDTH  = 16.0
+NBSP_UTF8   = "\xc2\xa0" # non-breaking space instead of space
 
 xml = Builder::XmlMarkup.new(target: STDOUT, indent: 2)
 
@@ -25,6 +26,29 @@ def tile_side_stripe(xml, fill_color, skew, stroke_width)
   ].join(' ')
   stripe_style = "fill:#{fill_color}"
   xml.polygon points:points, style: stripe_style
+end
+
+def tile_hole(xml, east_color, style)
+  hole_w = CHAR_WIDTH * 3
+  padding_north_south = 8
+  height_multiplier =
+    ((TILE_HEIGHT - padding_north_south * 2) / TILE_HEIGHT)
+  skew_east = 15.0
+  stroke_width = 1.0
+
+  # NW, SW, SE, NE
+  points = %W[
+    0,#{padding_north_south}
+    0,#{TILE_HEIGHT - padding_north_south}
+    #{hole_w - skew_east*height_multiplier/2},#{TILE_HEIGHT - padding_north_south}
+    #{hole_w + skew_east*height_multiplier/2},#{padding_north_south}
+  ].join(' ')
+
+  xml.polygon points:points, style:style
+
+  xml.g transform:"translate(#{hole_w - 8} #{padding_north_south}) scale(#{height_multiplier} #{height_multiplier})" do
+    tile_side_stripe xml, east_color, 15.0, stroke_width
+  end
 end
 
 def tile(xml, x, y, text, west_color, east_color)
@@ -68,22 +92,13 @@ def tile(xml, x, y, text, west_color, east_color)
       end
     end
 
-    xml.text text, x:west_padding, y:(TILE_HEIGHT/2 + FONT_HEIGHT/2)
+    xml.text text.gsub('_', NBSP_UTF8),
+      x:west_padding, y:(TILE_HEIGHT/2 + FONT_HEIGHT/2)
 
     if text.include?('___')
       hole_x = west_padding + CHAR_WIDTH * text.index('___')
-      hole_w = CHAR_WIDTH * 3
-      padding_north_south = 8
-
-      # NW, SW, SE, NE
-      points = %W[
-        0,#{padding_north_south}
-        0,#{TILE_HEIGHT - padding_north_south}
-        #{hole_w},#{TILE_HEIGHT - padding_north_south}
-        #{hole_w},#{padding_north_south}
-      ].join(' ')
       xml.g transform:"translate(#{hole_x} 0)" do
-        xml.polygon points:points, style:style
+        tile_hole xml, 'red', style
       end
     end
   end
