@@ -1,0 +1,14 @@
+@patients = AR_RELATION
+halt erb(SYMBOL)
+id = STRING
+@patient = AR_OBJECT
+Patient => AR_CLASS_OBJECT
+AR_CLASS_OBJECT.find(STRING) => AR_OBJECT
+if params["commit"] == STRING
+AR_OBJECT.systolic = STRING
+AR_OBJECT.diastolic = STRING
+if AR_OBJECT.save == true
+redirect STRING
+AR_OBJECT.destroy
+AR_CLASS_OBJECT.new => AR_OBJECT
+params[STRING] => STRING
