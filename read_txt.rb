@@ -1,16 +1,18 @@
 require 'builder'
 require 'zlib' # for Zlib.crc32
 
+PATH_TO_READ = ARGV[0] or raise "Provide .txt file to read"
 TILE_HEIGHT = 50.0
 FONT_HEIGHT = 20.0
 CHAR_WIDTH  = 17.0
 NBSP_UTF8   = "\xc2\xa0" # non-breaking space instead of space
 TYPE_TO_COLOR = {
-  AR_CLASS_OBJECT: '#cfc',
+  AR_CLASS_OBJECT: '#aff',
   AR_RELATION:     '#99f',
   AR_OBJECT:       'blue',
   STRING:          'green',
   SYMBOL:          'orange',
+  INT:             'red',
   ANYTHING:        'transparent',
 }
 BACKGROUND_COLOR = '#eee'
@@ -124,7 +126,7 @@ end
 
 tiles = []
 TYPES = TYPE_TO_COLOR.keys.map { |type| type.to_s }
-File.open('241.txt') do |file|
+File.open(PATH_TO_READ) do |file|
   file.each_line do |line|
     west_type = nil
     TYPES.each do |type|
@@ -161,7 +163,9 @@ end
 
 # consistent sorting across multiple runs
 tiles = tiles.sort_by { |tile|
-  [tile[:east_type] || :none, Zlib.crc32(tile[:text])]
+  [tile[:east_type] || :none,
+   tile[:west_type] || :none,
+   Zlib.crc32(tile[:text])]
 }
 
 xml.instruct!
