@@ -4,7 +4,7 @@ require 'zlib' # for Zlib.crc32
 PATH_TO_READ = ARGV[0] or raise "Provide .txt file to read"
 TILE_HEIGHT = 50.0
 FONT_HEIGHT = 20.0
-CHAR_WIDTH  = 17.0
+CHAR_WIDTH  = 16.5
 NBSP_UTF8   = "\xc2\xa0" # non-breaking space instead of space
 TYPE_TO_COLOR = {
   AR_CLASS_OBJECT: '#aff',
