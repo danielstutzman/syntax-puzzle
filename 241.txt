@@ -12,3 +12,27 @@ redirect STRING
 AR_OBJECT.destroy
 AR_CLASS_OBJECT.new => AR_OBJECT
 params[STRING] => STRING
+"1" => STRING
+"2" => STRING
+"3" => STRING
+"diastolic" => STRING
+"systolic" => STRING
+raise ANYTHING.inspect
+AR_CLASS_OBJECT.order(SYMBOL) => AR_RELATION
+AR_CLASS_OBJECT.where(id: STRING) => AR_RELATION
+AR_CLASS_OBJECT.find_by(id: STRING) => AR_OBJECT
+:id => SYMBOL
+:diastolic => SYMBOL
+:systolic => SYMBOL
+:index => SYMBOL
+:edit_or_new => SYMBOL
+"id" => STRING
+id => STRING
+@patient => AR_OBJECT
+@patients => AR_RELATION
+AR_RELATION.first => AR_OBJECT
+AR_RELATION.last => AR_OBJECT
+"/patients/#{STRING}" => STRING
+"Update" => STRING
+"Delete" => STRING
+"/" => STRING
