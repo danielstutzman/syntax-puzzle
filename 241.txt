@@ -32,7 +32,8 @@ id => STRING
 @patients => AR_RELATION
 AR_RELATION.first => AR_OBJECT
 AR_RELATION.last => AR_OBJECT
-"/patients/#{STRING}" => STRING
+"/patients/#{ANYTHING}" => STRING
 "Update" => STRING
 "Delete" => STRING
 "/" => STRING
+ap ANYTHING
