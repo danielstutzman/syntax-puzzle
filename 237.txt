@@ -1,0 +1,27 @@
+halt erb(SYMBOL)
+first_name = STRING
+params[STRING] => STRING
+"first_name" => STRING
+"last_name" => STRING
+people = AR_RELATION
+Person => AR_CLASS_OBJECT
+AR_CLASS_OBJECT.where(first_name: STRING) => AR_RELATION
+AR_CLASS_OBJECT.find_by(first_name: STRING) => AR_RELATION
+AR_RELATION.where(last_name: STRING) => AR_RELATION
+if INT == 0
+if INT == 1
+if INT >= 2
+:no_one => SYMBOL
+AR_RELATION.size => INT
+@people = AR_RELATION
+@person = AR_OBJECT
+:number => SYMBOL
+:choose => SYMBOL
+first_name = STRING
+first_name => STRING
+last_name = STRING
+last_name => STRING
+@people => AR_RELATION
+@person => AR_OBJECT
+AR_RELATION.first => AR_OBJECT
+end
