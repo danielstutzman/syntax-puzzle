@@ -1,18 +1,17 @@
 require 'builder'
-
-TYPES = %w[ AR_RELATION AR_CLASS_OBJECT AR_OBJECT STRING SYMBOL ]
+require 'zlib' # for Zlib.crc32
 
 TILE_HEIGHT = 50.0
 FONT_HEIGHT = 20.0
-CHAR_WIDTH  = 16.0
+CHAR_WIDTH  = 17.0
 NBSP_UTF8   = "\xc2\xa0" # non-breaking space instead of space
 TYPE_TO_COLOR = {
-  AR_CLASS_OBJECT: '#ccf',
-  AR_RELATION:     '#ccf',
+  AR_CLASS_OBJECT: '#cfc',
+  AR_RELATION:     '#99f',
   AR_OBJECT:       'blue',
-  INT:             'red',
   STRING:          'green',
-  SYMBOL:          'yellow',
+  SYMBOL:          'orange',
+  ANYTHING:        'transparent',
 }
 BACKGROUND_COLOR = '#eee'
 STROKE_WIDTH = 1.0
@@ -25,6 +24,7 @@ svg_attributes = {
   xmlns: 'http://www.w3.org/2000/svg',
   version: '1.1',
   onmousemove: 'if (selectedElement) { moveElement(event); }',
+  transform: 'scale(0.3 0.3)',
 }
 
 def tile_side_stripe(xml, fill_color, skew, stroke_width)
@@ -41,7 +41,7 @@ def tile_side_stripe(xml, fill_color, skew, stroke_width)
 end
 
 def tile_hole(xml, east_color)
-  hole_w = CHAR_WIDTH * 3
+  hole_w = CHAR_WIDTH * 2.5
   padding_north_south = 8
   height_multiplier =
     ((TILE_HEIGHT - padding_north_south * 2) / TILE_HEIGHT)
@@ -109,7 +109,7 @@ def tile(xml, x, y, text, west_type, east_type, east_hole_type)
       end
     end
 
-    xml.text text.gsub('_', NBSP_UTF8),
+    xml.text text.gsub('___', NBSP_UTF8 * 3),
       x:west_padding, y:(TILE_HEIGHT/2 + FONT_HEIGHT/2)
 
     if text.include?('___')
@@ -123,6 +123,7 @@ def tile(xml, x, y, text, west_type, east_type, east_hole_type)
 end
 
 tiles = []
+TYPES = TYPE_TO_COLOR.keys.map { |type| type.to_s }
 File.open('241.txt') do |file|
   file.each_line do |line|
     west_type = nil
@@ -158,6 +159,11 @@ File.open('241.txt') do |file|
   end
 end
 
+# consistent sorting across multiple runs
+tiles = tiles.sort_by { |tile|
+  [tile[:east_type] || :none, Zlib.crc32(tile[:text])]
+}
+
 xml.instruct!
 xml.svg(svg_attributes) do
   xml.style do
@@ -175,12 +181,14 @@ xml.svg(svg_attributes) do
   end
 
   xml.rect x:0, y:0, width:'100%', height:'100%', fill:BACKGROUND_COLOR
-  y = 20
-  tiles.each do |tile|
-    tile xml, 10, y, tile[:text], tile[:west_type], tile[:east_type],
+  tiles.each_with_index do |tile, i|
+    x = (i % 2) * 500 + 10
+    y = 20 + i * 30
+    tile xml, x, y, tile[:text], tile[:west_type], tile[:east_type],
       tile[:east_hole_type]
-    y += 60
+  end
+
+  (TYPES - ['ANYTHING']).each_with_index do |type, i|
+    xml.text type, x:(i * 200), y:15, fill: TYPE_TO_COLOR[type.intern]
   end
 end
-
-
