@@ -2,6 +2,7 @@ var selectedElement = 0;
 var currentX = 0;
 var currentY = 0;
 var currentMatrix = 0;
+var selectedElement = null;
 
 function selectElement(evt, target) {
   selectedElement = target;
@@ -18,8 +19,9 @@ function selectElement(evt, target) {
   }
 
   selectedElement.setAttributeNS(null, "onmousemove", "moveElement(evt)");
-  selectedElement.setAttributeNS(null, "onmouseout", "deselectElement(evt)");
   selectedElement.setAttributeNS(null, "onmouseup", "deselectElement(evt)");
+  evt.preventDefault();
+  return false;
 }
 
 function moveElement(evt) {
@@ -31,13 +33,15 @@ function moveElement(evt) {
   selectedElement.setAttributeNS(null, "transform", "translate(" + currentMatrix.join(' ') + ")");
   currentX = evt.clientX;
   currentY = evt.clientY;
+  evt.preventDefault();
+  return false;
 }
 
 function deselectElement(evt) {
-  if(selectedElement != 0) {
+  if(selectedElement !== null) {
     selectedElement.removeAttributeNS(null, "onmousemove");
     selectedElement.removeAttributeNS(null, "onmouseout");
     selectedElement.removeAttributeNS(null, "onmouseup");
-    selectedElement = 0;
+    selectedElement = null;
   }
 }
