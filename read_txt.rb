@@ -3,6 +3,7 @@ require 'zlib' # for Zlib.crc32
 
 PATH_TO_READ = ARGV[0] or raise "Provide .txt file to read"
 TILE_HEIGHT = 50.0
+TILE_Y_SEPARATION = 30.0
 FONT_HEIGHT = 20.0
 CHAR_WIDTH  = 16.5
 NBSP_UTF8   = "\xc2\xa0" # non-breaking space instead of space
@@ -172,6 +173,9 @@ tiles = tiles.sort_by { |tile|
    Zlib.crc32(tile[:text])]
 }
 
+svg_attributes['width']  = '100%'
+svg_attributes['height'] = 60 + tiles.size * TILE_Y_SEPARATION + 60
+
 xml.instruct!
 xml.svg(svg_attributes) do
   xml.style do
@@ -191,7 +195,7 @@ xml.svg(svg_attributes) do
   xml.rect x:0, y:0, width:'100%', height:'100%', fill:BACKGROUND_COLOR
   tiles.each_with_index do |tile, i|
     x = (i % 2) * 500 + 10
-    y = 60 + i * 30
+    y = 60 + i * TILE_Y_SEPARATION
     tile xml, x, y, tile[:text], tile[:west_type], tile[:east_type],
       tile[:east_hole_type]
   end
