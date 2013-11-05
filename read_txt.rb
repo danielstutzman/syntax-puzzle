@@ -6,15 +6,7 @@ TILE_HEIGHT = 50.0
 FONT_HEIGHT = 20.0
 CHAR_WIDTH  = 16.5
 NBSP_UTF8   = "\xc2\xa0" # non-breaking space instead of space
-TYPE_TO_COLOR = {
-  AR_CLASS_OBJECT: '#aff',
-  AR_RELATION:     '#99f',
-  AR_OBJECT:       'blue',
-  STRING:          'green',
-  SYMBOL:          'orange',
-  INT:             'red',
-  ANYTHING:        'transparent',
-}
+$type_to_color = {}
 BACKGROUND_COLOR = '#eee'
 STROKE_WIDTH = 1.0
 STROKE_COLOR = 'black'
@@ -28,6 +20,10 @@ svg_attributes = {
   onmousemove: 'if (selectedElement) { moveElement(event); }',
   transform: 'scale(0.3 0.3)',
 }
+
+def types
+  $type_to_color.keys
+end
 
 def tile_side_stripe(xml, fill_color, skew, stroke_width)
   width = 10
@@ -100,13 +96,13 @@ def tile(xml, x, y, text, west_type, east_type, east_hole_type)
     xml.polygon points:points, style:style
 
     if do_skew_west
-      west_color = TYPE_TO_COLOR[west_type]
+      west_color = $type_to_color[west_type]
       tile_side_stripe xml, west_color, skew_west, STROKE_WIDTH
     end
 
     if do_skew_east
       xml.g transform:"translate(#{width} 0)" do
-        east_color = TYPE_TO_COLOR[east_type]
+        east_color = $type_to_color[east_type]
         tile_side_stripe xml, east_color, skew_east, STROKE_WIDTH
       end
     end
@@ -117,7 +113,7 @@ def tile(xml, x, y, text, west_type, east_type, east_hole_type)
     if text.include?('___')
       hole_x = west_padding + CHAR_WIDTH * text.index('___')
       xml.g transform:"translate(#{hole_x} 0)" do
-        east_hole_color = TYPE_TO_COLOR[east_hole_type]
+        east_hole_color = $type_to_color[east_hole_type]
         tile_hole xml, east_hole_color
       end
     end
@@ -125,11 +121,19 @@ def tile(xml, x, y, text, west_type, east_type, east_hole_type)
 end
 
 tiles = []
-TYPES = TYPE_TO_COLOR.keys.map { |type| type.to_s }
 File.open(PATH_TO_READ) do |file|
   file.each_line do |line|
+    next if line == "\n"
+
+    if match = line.match(/^([A-Z_]+): +((#[0-9a-f]{3})|([a-z]+))/)
+      type  = match[1]
+      color = match[2]
+      $type_to_color[type] = color
+      next
+    end
+
     west_type = nil
-    TYPES.each do |type|
+    types.each do |type|
       if line.start_with?(type)
         west_type = type
         line = line[type.size..-1]
@@ -137,7 +141,7 @@ File.open(PATH_TO_READ) do |file|
     end
 
     east_type = nil
-    TYPES.each do |type|
+    types.each do |type|
       if line.end_with?(" => #{type}\n")
         east_type = type
         line = line[0...(line.length - type.length - 5)]
@@ -145,7 +149,7 @@ File.open(PATH_TO_READ) do |file|
     end
 
     east_hole_type = nil
-    TYPES.each do |type|
+    types.each do |type|
       if line.include?(type)
         east_hole_type = type
         line = line.gsub(type, '___')
@@ -154,17 +158,17 @@ File.open(PATH_TO_READ) do |file|
 
     tiles.push({
       text: line,
-      west_type: west_type ? west_type.intern : nil,
-      east_type: east_type ? east_type.intern : nil,
-      east_hole_type: east_hole_type ? east_hole_type.intern : nil,
+      west_type: west_type,
+      east_type: east_type,
+      east_hole_type: east_hole_type,
     })
   end
 end
 
 # consistent sorting across multiple runs
 tiles = tiles.sort_by { |tile|
-  [tile[:east_type] || :none,
-   tile[:west_type] || :none,
+  [tile[:east_type] || '',
+   tile[:west_type] || '',
    Zlib.crc32(tile[:text])]
 }
 
@@ -187,12 +191,13 @@ xml.svg(svg_attributes) do
   xml.rect x:0, y:0, width:'100%', height:'100%', fill:BACKGROUND_COLOR
   tiles.each_with_index do |tile, i|
     x = (i % 2) * 500 + 10
-    y = 20 + i * 30
+    y = 60 + i * 30
     tile xml, x, y, tile[:text], tile[:west_type], tile[:east_type],
       tile[:east_hole_type]
   end
 
-  (TYPES - ['ANYTHING']).each_with_index do |type, i|
-    xml.text type, x:(i * 200), y:15, fill: TYPE_TO_COLOR[type.intern]
+  (types - ['ANYTHING']).each_with_index do |type, i|
+    xml.text type, x:(i * 100), y:15 + ((i % 2) * 20),
+      fill: $type_to_color[type]
   end
 end

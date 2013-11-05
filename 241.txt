@@ -1,3 +1,11 @@
+AR_CLASS_OBJECT: #aff
+AR_RELATION:     #99f
+AR_OBJECT:       blue
+STRING:          green
+SYMBOL:          orange
+INT:             red
+ANYTHING:        transparent
+
 @patients = AR_RELATION
 halt erb(SYMBOL)
 id = STRING
