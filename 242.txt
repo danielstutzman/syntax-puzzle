@@ -10,7 +10,7 @@ AUTHOR_OBJECT: #dfd
 
 halt erb(SYMBOL)
 params[STRING] => STRING
-.to_i => INTEGER
+STRING.to_i => INTEGER
 :id => SYMBOL
 :name => SYMBOL
 :index => SYMBOL
